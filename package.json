@@ -2,6 +2,7 @@
   "name": "black-hole-master",
   "version": "1.0.0",
   "description": "--- ---",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "dev": "vite",
