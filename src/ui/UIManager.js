@@ -24,11 +24,6 @@ export class UIManager {
                 <div style="font-size: 1.2rem; letter-spacing: 2px;">INITIALIZING SINGULARITY</div>
             </div>
 
-            <div class="top-bar">
-                <div class="title">Black Hole Sim</div>
-                <div class="fps-counter" id="fps-counter">FPS: 60</div>
-            </div>
-
             <div class="side-panel" id="side-panel">
                 <div class="panel-header">
                     <h3>Simulation Settings</h3>
@@ -109,7 +104,6 @@ export class UIManager {
 
         // Cache DOM elements
         this.dom.loader = document.getElementById('loader-overlay');
-        this.dom.fps = document.getElementById('fps-counter');
         this.dom.sidePanel = document.getElementById('side-panel');
         this.dom.qualitySelect = document.getElementById('quality-select');
         this.dom.obsDistance = document.getElementById('obs-distance');
@@ -205,7 +199,7 @@ export class UIManager {
     }
 
     updateFPS(fps) {
-        this.dom.fps.textContent = `FPS: ${Math.round(fps)}`;
+        // FPS display removed, method kept for compatibility
     }
 
     updateUI() {
