@@ -1,27 +1,64 @@
----
----
+# Black Hole Simulation 🕳️
 
-# Ray-traced simulation of a black hole
+A real-time, ray-traced simulation of a Schwarzschild black hole, running entirely in your browser using WebGL and Three.js.
 
-In this simulation, the light ray paths are computed by integrating an ODE describing the Schwarzschild geodesics using GLSL on the GPU, leveraging WebGL and [three.js](http://threejs.org). This should result to a fairly physically accurate gravitational lensing effect. Various other relativistic effects have also been added and their contributions can be toggled from the GUI.
-The simulation has normalized units such that the Schwarzschild radius of the black hole is one and the speed of light is one length unit per second (unless changed using the "time scale" parameter).
+![Black Hole Simulation](public/img/accretion-disk.png)
 
-See **[this page](https://oseiskar.github.io/black-hole/docs/physics.html)** ([PDF version](https://oseiskar.github.io/black-hole/docs/physics.pdf)) for a more detailed description of the physics of the simulation.
+## 🚀 Live Demo
+**[Launch Simulation](https://MundaneMann1776.github.io/black-hole-web-app/)**
 
-### System requirements
+## ✨ Features
 
-The simulation needs a decent GPU and a recent variant of Chrome or Firefox to run smoothly. In addition to changing simulation quality from the GUI, frame rate can be increased by shrinking the browser window and/or reducing screen resolution. Disabling the planet from the GUI also increases frame rate.
+### 🌌 Physically Accurate Simulation
+*   **Ray Tracing**: Computes light paths by integrating geodesics in the Schwarzschild metric.
+*   **Relativistic Effects**: Gravitational lensing, Doppler shift, relativistic beaming, and gravitational time dilation.
+*   **Accretion Disk**: Volumetric rendering of a swirling disk of matter.
 
-Example: runs 30+ fps at resolution 1920 x 1080 in Chrome 48 on a Linux desktop with GeForce GTX 750 Ti and "high" simulation quality
+### 🎮 Interactive Controls
+*   **Famous Black Holes**: Instantly switch between presets like **Gargantua** (Interstellar), **Sagittarius A***, **M87***, **TON 618**, and **Cygnus X-1**.
+*   **Background Switcher**: Choose from the Milky Way, a colorful Nebula, or the Hubble Deep Field.
+*   **Full Control**: Adjust observer distance, orbital inclination, and simulation quality in real-time.
+*   **Keyboard Navigation**:
+    *   `W` / `S`: Move closer / further
+    *   `A` / `D`: Change orbital inclination
+    *   `Space`: Pause/Resume orbit
 
-### Known artefacts
+### 🛠️ Modern Tech Stack
+*   **Vite**: Fast development and optimized production builds.
+*   **Three.js**: Modern WebGL rendering engine.
+*   **GLSL**: Custom shaders for high-performance physics calculations.
+*   **Vanilla JS**: Lightweight, modular architecture without heavy framework overhead.
 
- * The striped accretion disk and planet textures are (obviously?) fake and are included to help visualizing motion.
- * The spectrum used in modeling the Doppler shift of the Milky Way background image is quite arbitrary (not based on real spectral data) and consequently the Doppler-shifted background colors may be wrong.
- * The lighting model of the planet is based on a point-like light source and a quite unphysical ambient component.
- * In the "medium" quality mode, the planet deforms unphysically when it travels between the camera and the black hole.
- * The light paths bend a bit more than they should due to low ODE solver step counts (see [numeric tests](https://github.com/oseiskar/black-hole/blob/numeric-notebooks/numeric_tests.ipynb)), but this seems to happen in a systematic way so that the image looks very similar in comparison to a more accurate simulation.
- * Lorentz contraction causes jagged looks in the planet when simultaneously enabled with "light travel time" and the planet is close to the black hole.
- * Texture sampling issues cause unintended star blinking.
+## 📦 Installation
 
-_see **[COPYRIGHT.md](https://github.com/oseiskar/black-hole/blob/master/COPYRIGHT.md)** for license and copyright info_
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/MundaneMann1776/black-hole-web-app.git
+    cd black-hole-web-app
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Run locally**
+    ```bash
+    npm run dev
+    ```
+    Open `http://localhost:5173` in your browser.
+
+4.  **Build for production**
+    ```bash
+    npm run build
+    ```
+
+## 📚 Physics Background
+The simulation solves the geodesic equation for light rays passing near a black hole. The core logic runs in a GLSL fragment shader (`src/shaders/raytracer.glsl`), ensuring high performance even for complex calculations.
+
+*   **Schwarzschild Radius ($R_s$)**: The event horizon radius.
+*   **Gravitational Lensing**: Light bending due to spacetime curvature.
+*   **Doppler Shift**: Color shifting caused by the relative velocity of the accretion disk material.
+
+## 📄 License
+MIT License. Based on the original work by [oseiskar](https://github.com/oseiskar/black-hole).
