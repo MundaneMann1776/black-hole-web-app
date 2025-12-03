@@ -7,7 +7,7 @@ import raytracerFragment from './shaders/raytracer.glsl';
 import './style.css';
 
 // Global variables
-let container, stats;
+let container;
 let camera, scene, renderer, cameraControls;
 let shader = null;
 let observer = new Observer();
@@ -96,11 +96,6 @@ function init(loadedTextures) {
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     container.appendChild(renderer.domElement);
-
-    stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
-    container.appendChild(stats.domElement);
 
     // Camera setup
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 80000);
