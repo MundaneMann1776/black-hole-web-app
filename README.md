@@ -4,7 +4,7 @@ A real-time, ray-traced simulation of a Schwarzschild black hole running in the 
 
 **Original work by [oseiskar](https://github.com/oseiskar/black-hole).**
 
-**[🔴 Live Demo](https://mundanemann1776.github.io/black-hole-web-app/)**
+**[Live Demo](https://mundanemann1776.github.io/black-hole-web-app/)**
 
 ## What is this?
 This is a WebGL simulation that computes light ray paths by integrating the geodesic equations of the Schwarzschild metric directly on the GPU (using GLSL). It accurately simulates gravitational lensing, Doppler shifting, and relativistic beaming.
