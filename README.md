@@ -1,63 +1,26 @@
-# Black Hole Simulation 🕳️
+# My Black Hole Simulation
 
-A real-time, ray-traced simulation of a Schwarzschild black hole, running entirely in your browser using WebGL and Three.js.
+Just a personal project where I wanted to see if I could build a real-time, ray-traced black hole simulation that runs directly in the browser.
 
+I've always been fascinated by accurate space visualizations (like in *Interstellar*), so I took an existing implementation and modernized it. I ported it to a newer tech stack, cleaned up the code, and added a bunch of features I thought were cool.
 
-## 🚀 Live Demo
-**[Launch Simulation](https://MundaneMann1776.github.io/black-hole-web-app/)**
+## What I Added
+I spent some time adding things that make it more fun to play with:
+*   **Presets**: I added configurations for famous black holes like **Gargantua**, **Sagittarius A***, and **M87*** so you can see how they compare.
+*   **Backgrounds**: You can swap the background between the Milky Way, a Nebula, or the Deep Field.
+*   **Controls**: I wasn't a fan of the old controls, so I added WASD support and a cleaner UI.
 
-## ✨ Features
+## How it Works
+Under the hood, it's using **Three.js** for the web stuff and **GLSL** for the heavy lifting. The physics are actually solving the geodesic equations for light rays in the Schwarzschild metric on the GPU. It handles gravitational lensing, doppler shifting, and time dilation.
 
-### 🌌 Physically Accurate Simulation
-*   **Ray Tracing**: Computes light paths by integrating geodesics in the Schwarzschild metric.
-*   **Relativistic Effects**: Gravitational lensing, Doppler shift, relativistic beaming, and gravitational time dilation.
-*   **Accretion Disk**: Volumetric rendering of a swirling disk of matter.
+## Running it
+If you want to mess around with the code:
 
-### 🎮 Interactive Controls
-*   **Famous Black Holes**: Instantly switch between presets like **Gargantua** (Interstellar), **Sagittarius A***, **M87***, **TON 618**, and **Cygnus X-1**.
-*   **Background Switcher**: Choose from the Milky Way, a colorful Nebula, or the Hubble Deep Field.
-*   **Full Control**: Adjust observer distance, orbital inclination, and simulation quality in real-time.
-*   **Keyboard Navigation**:
-    *   `W` / `S`: Move closer / further
-    *   `A` / `D`: Change orbital inclination
-    *   `Space`: Pause/Resume orbit
+1.  Clone the repo.
+2.  `npm install`
+3.  `npm run dev`
 
-### 🛠️ Modern Tech Stack
-*   **Vite**: Fast development and optimized production builds.
-*   **Three.js**: Modern WebGL rendering engine.
-*   **GLSL**: Custom shaders for high-performance physics calculations.
-*   **Vanilla JS**: Lightweight, modular architecture without heavy framework overhead.
+That's pretty much it.
 
-## 📦 Installation
-
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/MundaneMann1776/black-hole-web-app.git
-    cd black-hole-web-app
-    ```
-
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Run locally**
-    ```bash
-    npm run dev
-    ```
-    Open `http://localhost:5173` in your browser.
-
-4.  **Build for production**
-    ```bash
-    npm run build
-    ```
-
-## 📚 Physics Background
-The simulation solves the geodesic equation for light rays passing near a black hole. The core logic runs in a GLSL fragment shader (`src/shaders/raytracer.glsl`), ensuring high performance even for complex calculations.
-
-*   **Schwarzschild Radius ($R_s$)**: The event horizon radius.
-*   **Gravitational Lensing**: Light bending due to spacetime curvature.
-*   **Doppler Shift**: Color shifting caused by the relative velocity of the accretion disk material.
-
-## 📄 License
-MIT License. Based on the original work by [oseiskar](https://github.com/oseiskar/black-hole).
+---
+*Based on the original work by [oseiskar](https://github.com/oseiskar/black-hole).*
