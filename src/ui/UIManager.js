@@ -36,6 +36,26 @@ export class UIManager {
                 </div>
                 
                 <div class="control-group">
+                    <h3>Presets</h3>
+                    <div class="control-item" style="justify-content: flex-start; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn" data-preset="default" style="font-size: 0.7rem; padding: 5px 10px;">Default</button>
+                        <button class="btn" data-preset="gargantua" style="font-size: 0.7rem; padding: 5px 10px;">Gargantua</button>
+                        <button class="btn" data-preset="micro" style="font-size: 0.7rem; padding: 5px 10px;">Micro</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <h3>Background</h3>
+                    <div class="control-item">
+                        <select id="bg-select" style="background: rgba(0,0,0,0.5); color: white; border: 1px solid white; padding: 5px; width: 100%;">
+                            <option value="galaxy">Milky Way</option>
+                            <option value="nebula">Nebula</option>
+                            <option value="deep_field">Deep Field</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
                     <h3>Quality</h3>
                     <div class="control-item">
                         <label>Steps</label>
@@ -103,6 +123,20 @@ export class UIManager {
         });
         document.getElementById('close-settings').addEventListener('click', () => {
             this.dom.sidePanel.classList.remove('active');
+        });
+
+        // Presets
+        const presetBtns = this.dom.sidePanel.querySelectorAll('button[data-preset]');
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.callbacks.onPresetChange(btn.dataset.preset);
+            });
+        });
+
+        // Background
+        this.dom.bgSelect = document.getElementById('bg-select');
+        this.dom.bgSelect.addEventListener('change', (e) => {
+            this.callbacks.onBackgroundChange(e.target.value);
         });
 
         // Quality

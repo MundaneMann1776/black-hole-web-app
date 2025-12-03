@@ -114,11 +114,54 @@ function init(loadedTextures) {
     onWindowResize(updateUniforms);
     window.addEventListener('resize', () => onWindowResize(updateUniforms), false);
 
+    // Presets definition
+    const presets = {
+        default: {
+            planet: { enabled: true, distance: 7.0, radius: 0.4 },
+            observer: { distance: 11.0, motion: true },
+            accretion_disk: true,
+            time_scale: 1.0
+        },
+        gargantua: {
+            planet: { enabled: false, distance: 7.0, radius: 0.4 },
+            observer: { distance: 18.0, motion: true },
+            accretion_disk: true,
+            time_scale: 0.5
+        },
+        micro: {
+            planet: { enabled: true, distance: 3.0, radius: 0.2 },
+            observer: { distance: 6.0, motion: true },
+            accretion_disk: false,
+            time_scale: 2.0
+        }
+    };
+
     // Initialize UI
     const ui = new UIManager(shader.parameters, {
         onShaderUpdate: () => scene.updateShader(),
         onUniformsUpdate: updateUniforms,
-        onCameraUpdate: () => updateCamera(updateUniforms)
+        onCameraUpdate: () => updateCamera(updateUniforms),
+        onBackgroundChange: (bgName) => {
+            if (textures[bgName]) {
+                uniforms.galaxy_texture.value = textures[bgName];
+            }
+        },
+        onPresetChange: (presetName) => {
+            const preset = presets[presetName];
+            if (preset) {
+                // Apply preset to shader parameters
+                Object.assign(shader.parameters.planet, preset.planet);
+                Object.assign(shader.parameters.observer, preset.observer);
+                shader.parameters.accretion_disk = preset.accretion_disk;
+                shader.parameters.time_scale = preset.time_scale;
+
+                // Update UI elements (manual sync needed or UI needs to listen to params)
+                // For now, we just update the simulation
+                updateCamera(updateUniforms);
+                scene.updateShader();
+                updateUniforms();
+            }
+        }
     });
 
     // Start animation loop
@@ -247,6 +290,8 @@ function animate(updateUniformsCallback, ui) {
 
     Promise.all([
         loadTexture('galaxy', '/public/img/milkyway.jpg', THREE.NearestFilter),
+        loadTexture('nebula', '/public/img/nebula.png', THREE.LinearFilter),
+        loadTexture('deep_field', '/public/img/deep_field.png', THREE.LinearFilter),
         loadTexture('spectra', '/public/img/spectra.png', THREE.LinearFilter),
         loadTexture('moon', '/public/img/beach-ball.png', THREE.LinearFilter),
         loadTexture('stars', '/public/img/stars.png', THREE.LinearFilter),
