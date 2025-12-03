@@ -36,11 +36,14 @@ export class UIManager {
                 </div>
                 
                 <div class="control-group">
-                    <h3>Presets</h3>
-                    <div class="control-item" style="justify-content: flex-start; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn" data-preset="default" style="font-size: 0.7rem; padding: 5px 10px;">Default</button>
-                        <button class="btn" data-preset="gargantua" style="font-size: 0.7rem; padding: 5px 10px;">Gargantua</button>
-                        <button class="btn" data-preset="micro" style="font-size: 0.7rem; padding: 5px 10px;">Micro</button>
+                    <h3>Famous Black Holes</h3>
+                    <div class="control-item" style="justify-content: flex-start; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn" data-preset="gargantua" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">Gargantua</button>
+                        <button class="btn" data-preset="sagra" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">Sagittarius A*</button>
+                        <button class="btn" data-preset="m87" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">M87*</button>
+                        <button class="btn" data-preset="ton618" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">TON 618</button>
+                        <button class="btn" data-preset="cygnus" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">Cygnus X-1</button>
+                        <button class="btn" data-preset="default" style="font-size: 0.7rem; padding: 5px 8px; flex: 1 0 40%;">Reset</button>
                     </div>
                 </div>
 

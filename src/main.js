@@ -118,21 +118,44 @@ function init(loadedTextures) {
     const presets = {
         default: {
             planet: { enabled: true, distance: 7.0, radius: 0.4 },
-            observer: { distance: 11.0, motion: true },
+            observer: { distance: 11.0, motion: true, orbital_inclination: -10 },
             accretion_disk: true,
             time_scale: 1.0
         },
         gargantua: {
-            planet: { enabled: false, distance: 7.0, radius: 0.4 },
-            observer: { distance: 18.0, motion: true },
+            // Interstellar: Huge, thin disk, edge-on
+            planet: { enabled: false, distance: 7.0, radius: 1.2 },
+            observer: { distance: 18.0, motion: true, orbital_inclination: 0 },
             accretion_disk: true,
-            time_scale: 0.5
+            time_scale: 0.2
         },
-        micro: {
-            planet: { enabled: true, distance: 3.0, radius: 0.2 },
-            observer: { distance: 6.0, motion: true },
-            accretion_disk: false,
-            time_scale: 2.0
+        sagra: {
+            // Sagittarius A*: Moderate size, chaotic
+            planet: { enabled: true, distance: 5.0, radius: 0.4 },
+            observer: { distance: 10.0, motion: true, orbital_inclination: 45 },
+            accretion_disk: true,
+            time_scale: 1.0
+        },
+        m87: {
+            // M87*: Massive, viewed off-axis (the donut)
+            planet: { enabled: false, distance: 7.0, radius: 1.5 },
+            observer: { distance: 20.0, motion: true, orbital_inclination: 17 }, // 17 degrees is approx jet angle
+            accretion_disk: true,
+            time_scale: 0.1
+        },
+        ton618: {
+            // TON 618: Ultramassive, largest known
+            planet: { enabled: false, distance: 7.0, radius: 1.95 }, // Max radius
+            observer: { distance: 30.0, motion: true, orbital_inclination: 10 },
+            accretion_disk: true,
+            time_scale: 0.05 // Very slow relative time
+        },
+        cygnus: {
+            // Cygnus X-1: Stellar mass, fast, aggressive
+            planet: { enabled: true, distance: 2.5, radius: 0.1 },
+            observer: { distance: 5.0, motion: true, orbital_inclination: -30 },
+            accretion_disk: true,
+            time_scale: 3.0
         }
     };
 
