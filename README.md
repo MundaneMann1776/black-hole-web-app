@@ -10,7 +10,7 @@ This is a WebGL simulation that computes light ray paths by integrating the geod
 ## What I did
 I took the original implementation and modernized it:
 *   **Modern Stack**: Ported to Vite and ES6 modules, removed legacy dependencies (jQuery, Mustache).
-*   **New UI**: Replaced the debug controls with a custom HUD, including a settings panel and "famous black hole" presets.
+*   **New UI**: Replaced the debug controls with a custom HUD, including a settings panel and "well-known black holes" presets.
 *   **Features**: Added a background switcher (Nebula, Deep Field), keyboard controls (WASD), and improved performance.
 
 ## Running it
