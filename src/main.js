@@ -346,13 +346,13 @@ function animate(updateUniformsCallback, ui) {
     shader = new Shader(raytracerFragment);
 
     Promise.all([
-        loadTexture('galaxy', '/public/img/milkyway.jpg', THREE.NearestFilter),
-        loadTexture('nebula', '/public/img/nebula.png', THREE.LinearFilter),
-        loadTexture('deep_field', '/public/img/deep_field.png', THREE.LinearFilter),
-        loadTexture('spectra', '/public/img/spectra.png', THREE.LinearFilter),
-        loadTexture('moon', '/public/img/beach-ball.png', THREE.LinearFilter),
-        loadTexture('stars', '/public/img/stars.png', THREE.LinearFilter),
-        loadTexture('accretion_disk', '/public/img/accretion-disk.png', THREE.LinearFilter)
+        loadTexture('galaxy', 'img/milkyway.jpg', THREE.NearestFilter),
+        loadTexture('nebula', 'img/nebula.png', THREE.LinearFilter),
+        loadTexture('deep_field', 'img/deep_field.png', THREE.LinearFilter),
+        loadTexture('spectra', 'img/spectra.png', THREE.LinearFilter),
+        loadTexture('moon', 'img/beach-ball.png', THREE.LinearFilter),
+        loadTexture('stars', 'img/stars.png', THREE.LinearFilter),
+        loadTexture('accretion_disk', 'img/accretion-disk.png', THREE.LinearFilter)
     ]).then(results => {
         const loadedTextures = {};
         results.forEach(res => loadedTextures[res.name] = res.tex);
