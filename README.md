@@ -2,7 +2,6 @@
 
 A real-time, ray-traced simulation of a Schwarzschild black hole, running entirely in your browser using WebGL and Three.js.
 
-![Black Hole Simulation](public/img/accretion-disk.png)
 
 ## 🚀 Live Demo
 **[Launch Simulation](https://MundaneMann1776.github.io/black-hole-web-app/)**
