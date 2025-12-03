@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Stats from 'stats.js';
-import GUI from 'lil-gui';
+import { UIManager } from './ui/UIManager.js';
 import { Observer } from './Observer.js';
 import { Shader } from './Shader.js';
 import raytracerFragment from './shaders/raytracer.glsl';
@@ -115,10 +114,18 @@ function init(loadedTextures) {
     onWindowResize(updateUniforms);
     window.addEventListener('resize', () => onWindowResize(updateUniforms), false);
 
-    setupGUI(updateUniforms);
+    // Initialize UI
+    const ui = new UIManager(shader.parameters, {
+        onShaderUpdate: () => scene.updateShader(),
+        onUniformsUpdate: updateUniforms,
+        onCameraUpdate: () => updateCamera(updateUniforms)
+    });
 
     // Start animation loop
-    animate(updateUniforms);
+    animate(updateUniforms, ui);
+
+    // Hide loader when ready
+    ui.hideLoader();
 }
 
 function initializeCamera(camera) {
@@ -167,55 +174,6 @@ function onWindowResize(updateUniformsCallback) {
     if (updateUniformsCallback) updateUniformsCallback();
 }
 
-function setupGUI(updateUniformsCallback) {
-    const gui = new GUI();
-    const p = shader.parameters;
-
-    const updateShader = () => {
-        scene.updateShader();
-    };
-
-    gui.add(p, 'quality', ['fast', 'medium', 'high']).onChange(value => {
-        switch (value) {
-            case 'fast':
-                p.n_steps = 40;
-                break;
-            case 'medium':
-                p.n_steps = 100;
-                break;
-            case 'high':
-                p.n_steps = 200;
-                break;
-        }
-        updateShader();
-    });
-
-    gui.add(p, 'accretion_disk').onChange(updateShader);
-
-    const observerFolder = gui.addFolder('Observer');
-    observerFolder.add(p.observer, 'motion').onChange(motion => {
-        updateCamera(updateUniformsCallback);
-        updateShader();
-    });
-    observerFolder.add(p.observer, 'distance').min(1.5).max(30).onChange(() => updateCamera(updateUniformsCallback));
-
-    const planetFolder = gui.addFolder('Planet');
-    planetFolder.add(p.planet, 'enabled').onChange(updateShader);
-    planetFolder.add(p.planet, 'distance').min(1.5).onChange(updateUniformsCallback);
-    planetFolder.add(p.planet, 'radius').min(0.01).max(2.0).onChange(updateUniformsCallback);
-
-    const relativisticsFolder = gui.addFolder('Relativistic effects');
-    relativisticsFolder.add(p, 'aberration').onChange(updateShader);
-    relativisticsFolder.add(p, 'beaming').onChange(updateShader);
-    relativisticsFolder.add(p, 'doppler_shift').onChange(updateShader);
-    relativisticsFolder.add(p, 'gravitational_time_dilation').onChange(updateShader);
-    relativisticsFolder.add(p, 'lorentz_contraction').onChange(updateShader);
-
-    const timeFolder = gui.addFolder('Time');
-    timeFolder.add(p, 'light_travel_time').onChange(updateShader);
-    timeFolder.add(p, 'time_scale').min(0);
-}
-
 function frobeniusDistance(matrix1, matrix2) {
     let sum = 0.0;
     for (let i = 0; i < 16; i++) { // Matrix4 has 16 elements
@@ -235,8 +193,23 @@ const getFrameDuration = (function () {
     };
 })();
 
-function animate(updateUniformsCallback) {
-    requestAnimationFrame(() => animate(updateUniformsCallback));
+// FPS calculation helper
+let frameCount = 0;
+let lastTime = performance.now();
+let fps = 60;
+
+function animate(updateUniformsCallback, ui) {
+    requestAnimationFrame(() => animate(updateUniformsCallback, ui));
+
+    // FPS Counter
+    frameCount++;
+    const time = performance.now();
+    if (time >= lastTime + 1000) {
+        fps = frameCount;
+        frameCount = 0;
+        lastTime = time;
+        if (ui) ui.updateFPS(fps);
+    }
 
     camera.updateMatrixWorld();
     // getInverse is deprecated in favor of copy(m).invert()
@@ -255,7 +228,6 @@ function animate(updateUniformsCallback) {
 
         lastCameraMat.copy(camera.matrixWorldInverse);
     }
-    stats.update();
 }
 
 // Bootstrapping
