@@ -5,7 +5,7 @@ export default defineConfig({
     plugins: [
         vitePluginString()
     ],
-    base: '/black-hole-web-app/',
+    base: './',
     server: {
         host: true
     }
