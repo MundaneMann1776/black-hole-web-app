@@ -14,8 +14,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lil-gui": "^0.21.0",
-    "stats.js": "^0.17.0",
     "three": "^0.181.2",
     "vite": "^7.2.6",
     "vite-plugin-string": "^1.2.3"

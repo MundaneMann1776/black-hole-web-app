@@ -20,8 +20,7 @@ function degToRad(a) { return Math.PI * a / 180.0; }
 function init(loadedTextures) {
     textures = loadedTextures;
 
-    container = document.createElement('div');
-    document.body.appendChild(container);
+    container = document.body;
 
     scene = new THREE.Scene();
 
