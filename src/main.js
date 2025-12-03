@@ -5,6 +5,7 @@ import GUI from 'lil-gui';
 import { Observer } from './Observer.js';
 import { Shader } from './Shader.js';
 import raytracerFragment from './shaders/raytracer.glsl';
+import './style.css';
 
 // Global variables
 let container, stats;
