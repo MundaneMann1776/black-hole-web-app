@@ -204,4 +204,14 @@ export class UIManager {
     updateFPS(fps) {
         this.dom.fps.textContent = `FPS: ${Math.round(fps)}`;
     }
+
+    updateUI() {
+        // Sync UI elements with current parameters
+        this.dom.qualitySelect.value = this.parameters.quality;
+        this.dom.obsDistance.value = this.parameters.observer.distance;
+        this.dom.obsMotion.checked = this.parameters.observer.motion;
+        this.dom.physDoppler.checked = this.parameters.doppler_shift;
+        this.dom.physBeaming.checked = this.parameters.beaming;
+        this.dom.physDilation.checked = this.parameters.gravitational_time_dilation;
+    }
 }

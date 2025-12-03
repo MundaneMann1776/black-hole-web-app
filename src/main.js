@@ -157,10 +157,44 @@ function init(loadedTextures) {
 
                 // Update UI elements (manual sync needed or UI needs to listen to params)
                 // For now, we just update the simulation
+                ui.updateUI();
                 updateCamera(updateUniforms);
                 scene.updateShader();
                 updateUniforms();
             }
+        }
+    });
+
+    // Keyboard Controls
+    window.addEventListener('keydown', (e) => {
+        const p = shader.parameters;
+        const step = 0.5;
+
+        switch (e.key.toLowerCase()) {
+            case 'w':
+                p.observer.distance = Math.max(1.5, p.observer.distance - step);
+                updateCamera(updateUniforms);
+                ui.updateUI();
+                break;
+            case 's':
+                p.observer.distance = Math.min(30.0, p.observer.distance + step);
+                updateCamera(updateUniforms);
+                ui.updateUI();
+                break;
+            case 'a':
+                p.observer.orbital_inclination -= 2;
+                updateCamera(updateUniforms);
+                break;
+            case 'd':
+                p.observer.orbital_inclination += 2;
+                updateCamera(updateUniforms);
+                break;
+            case ' ':
+                p.observer.motion = !p.observer.motion;
+                updateCamera(updateUniforms);
+                scene.updateShader();
+                ui.updateUI();
+                break;
         }
     });
 
