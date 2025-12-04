@@ -47,8 +47,6 @@ export class UIManager {
                     <div class="control-item">
                         <select id="bg-select" style="background: rgba(0,0,0,0.5); color: white; border: 1px solid white; padding: 5px; width: 100%;">
                             <option value="galaxy">Milky Way</option>
-                            <option value="nebula">Nebula</option>
-                            <option value="deep_field">Deep Field</option>
                         </select>
                     </div>
                 </div>

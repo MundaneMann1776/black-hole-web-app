@@ -39,6 +39,10 @@ function init(loadedTextures) {
         planet_distance: { value: 7.0 },
         planet_radius: { value: 0.4 },
 
+        // Accretion disk sizing
+        accretion_inner_radius: { value: 1.5 },
+        accretion_width: { value: 5.0 },
+
         star_texture: { value: textures.stars },
         accretion_disk_texture: { value: textures.accretion_disk },
         galaxy_texture: { value: textures.galaxy },
@@ -108,19 +112,23 @@ function init(loadedTextures) {
     onWindowResize(updateUniforms);
     window.addEventListener('resize', () => onWindowResize(updateUniforms), false);
 
-    // Presets definition
+    // Presets definition - disk sizing makes each black hole visually distinct
     const presets = {
         default: {
             planet: { enabled: true, distance: 7.0, radius: 0.4 },
             observer: { distance: 11.0, motion: true, orbital_inclination: -10 },
             accretion_disk: true,
+            disk_inner_radius: 1.5,
+            disk_width: 5.0,
             time_scale: 1.0
         },
         gargantua: {
-            // Interstellar: Huge, thin disk, edge-on
+            // Interstellar: Huge black hole, wide thin disk
             planet: { enabled: false, distance: 7.0, radius: 1.2 },
-            observer: { distance: 18.0, motion: true, orbital_inclination: 0 },
+            observer: { distance: 15.0, motion: true, orbital_inclination: 5 },
             accretion_disk: true,
+            disk_inner_radius: 1.5,
+            disk_width: 8.0,  // Wide disk for Interstellar look
             time_scale: 0.2
         },
         sagra: {
@@ -128,27 +136,35 @@ function init(loadedTextures) {
             planet: { enabled: true, distance: 5.0, radius: 0.4 },
             observer: { distance: 10.0, motion: true, orbital_inclination: 45 },
             accretion_disk: true,
+            disk_inner_radius: 1.5,
+            disk_width: 4.0,
             time_scale: 1.0
         },
         m87: {
-            // M87*: Massive, viewed off-axis (the donut)
+            // M87*: Massive supergiant black hole with thick disk
             planet: { enabled: false, distance: 7.0, radius: 1.5 },
-            observer: { distance: 20.0, motion: true, orbital_inclination: 17 }, // 17 degrees is approx jet angle
+            observer: { distance: 12.0, motion: true, orbital_inclination: 17 },
             accretion_disk: true,
+            disk_inner_radius: 1.5,
+            disk_width: 6.0,
             time_scale: 0.1
         },
         ton618: {
-            // TON 618: Ultramassive, largest known
-            planet: { enabled: false, distance: 7.0, radius: 1.95 }, // Max radius
-            observer: { distance: 30.0, motion: true, orbital_inclination: 10 },
+            // TON 618: Ultramassive quasar - most massive known
+            planet: { enabled: false, distance: 7.0, radius: 1.95 },
+            observer: { distance: 8.0, motion: true, orbital_inclination: 10 },  // Closer to see the massive black hole
             accretion_disk: true,
-            time_scale: 0.05 // Very slow relative time
+            disk_inner_radius: 1.5,
+            disk_width: 4.0,  // Proportional disk
+            time_scale: 0.05
         },
         cygnus: {
-            // Cygnus X-1: Stellar mass, fast, aggressive
+            // Cygnus X-1: Stellar mass, smaller compact disk
             planet: { enabled: true, distance: 2.5, radius: 0.1 },
-            observer: { distance: 5.0, motion: true, orbital_inclination: -30 },
+            observer: { distance: 6.0, motion: true, orbital_inclination: -30 },
             accretion_disk: true,
+            disk_inner_radius: 1.5,
+            disk_width: 3.0,  // Smaller disk for stellar-mass black hole
             time_scale: 3.0
         }
     };
@@ -172,6 +188,13 @@ function init(loadedTextures) {
                 shader.parameters.accretion_disk = preset.accretion_disk;
                 shader.parameters.time_scale = preset.time_scale;
 
+                // Apply accretion disk sizing uniforms
+                uniforms.accretion_inner_radius.value = preset.disk_inner_radius;
+                uniforms.accretion_width.value = preset.disk_width;
+
+                // Use single consistent texture for now (custom textures had issues)
+                uniforms.accretion_disk_texture.value = textures.accretion_disk;
+
                 // Update UI elements (manual sync needed or UI needs to listen to params)
                 // For now, we just update the simulation
                 ui.updateUI();
@@ -181,39 +204,102 @@ function init(loadedTextures) {
             }
         }
     });
+    // Track which keys are currently pressed for smooth movement
+    const keysPressed = {};
+    const moveSpeed = 0.3;
+    const rotateSpeed = 2;
 
-    // Keyboard Controls
+    // Keyboard Controls - WASD for movement, Arrow keys for looking
     window.addEventListener('keydown', (e) => {
-        const p = shader.parameters;
-        const step = 0.5;
+        keysPressed[e.key.toLowerCase()] = true;
 
-        switch (e.key.toLowerCase()) {
-            case 'w':
-                p.observer.distance = Math.max(1.5, p.observer.distance - step);
-                updateCamera(updateUniforms);
-                ui.updateUI();
-                break;
-            case 's':
-                p.observer.distance = Math.min(30.0, p.observer.distance + step);
-                updateCamera(updateUniforms);
-                ui.updateUI();
-                break;
-            case 'a':
-                p.observer.orbital_inclination -= 2;
-                updateCamera(updateUniforms);
-                break;
-            case 'd':
-                p.observer.orbital_inclination += 2;
-                updateCamera(updateUniforms);
-                break;
-            case ' ':
-                p.observer.motion = !p.observer.motion;
-                updateCamera(updateUniforms);
-                scene.updateShader();
-                ui.updateUI();
-                break;
+        // Space bar to toggle orbital motion
+        if (e.key === ' ') {
+            const p = shader.parameters;
+            p.observer.motion = !p.observer.motion;
+            updateCamera(updateUniforms);
+            scene.updateShader();
+            ui.updateUI();
+            e.preventDefault();
         }
     });
+
+    window.addEventListener('keyup', (e) => {
+        keysPressed[e.key.toLowerCase()] = false;
+    });
+
+    // Process held keys each frame for smooth movement
+    function processKeys() {
+        const p = shader.parameters;
+        let changed = false;
+
+        // W/S - Move forward/backward (change distance)
+        if (keysPressed['w']) {
+            p.observer.distance = Math.max(2.0, p.observer.distance - moveSpeed);
+            changed = true;
+        }
+        if (keysPressed['s']) {
+            p.observer.distance = Math.min(50.0, p.observer.distance + moveSpeed);
+            changed = true;
+        }
+
+        // A/D - Rotate around the black hole (change orbital inclination)
+        if (keysPressed['a']) {
+            p.observer.orbital_inclination -= rotateSpeed;
+            changed = true;
+        }
+        if (keysPressed['d']) {
+            p.observer.orbital_inclination += rotateSpeed;
+            changed = true;
+        }
+
+        // Arrow Up/Down - Zoom in/out faster
+        if (keysPressed['arrowup']) {
+            p.observer.distance = Math.max(2.0, p.observer.distance - moveSpeed * 2);
+            changed = true;
+        }
+        if (keysPressed['arrowdown']) {
+            p.observer.distance = Math.min(50.0, p.observer.distance + moveSpeed * 2);
+            changed = true;
+        }
+
+        // Arrow Left/Right - Orbit around black hole
+        if (keysPressed['arrowleft']) {
+            p.observer.orbital_inclination -= rotateSpeed;
+            changed = true;
+        }
+        if (keysPressed['arrowright']) {
+            p.observer.orbital_inclination += rotateSpeed;
+            changed = true;
+        }
+
+        if (changed) {
+            updateCamera(updateUniforms);
+            ui.updateUI();
+        }
+    }
+
+    // Call processKeys every frame
+    const originalAnimate = window.requestAnimationFrame;
+    setInterval(processKeys, 16); // ~60fps key processing
+
+    // Scroll wheel for zoom
+    window.addEventListener('wheel', (e) => {
+        const p = shader.parameters;
+        const zoomSpeed = 0.5;
+
+        if (e.deltaY > 0) {
+            // Scroll down = zoom out
+            p.observer.distance = Math.min(50.0, p.observer.distance + zoomSpeed);
+        } else {
+            // Scroll up = zoom in
+            p.observer.distance = Math.max(2.0, p.observer.distance - zoomSpeed);
+        }
+
+        updateCamera(updateUniforms);
+        ui.updateUI();
+        e.preventDefault();
+    }, { passive: false });
 
     // Start animation loop
     animate(updateUniforms, ui);
@@ -333,6 +419,9 @@ function animate(updateUniformsCallback, ui) {
                 tex.magFilter = interpolation;
                 tex.minFilter = interpolation;
                 resolve({ name, tex });
+            }, undefined, (err) => {
+                console.warn(`Failed to load texture: ${name}`, err);
+                resolve({ name, tex: null });
             });
         });
     };
@@ -341,12 +430,16 @@ function animate(updateUniformsCallback, ui) {
 
     Promise.all([
         loadTexture('galaxy', 'img/milkyway.jpg', THREE.NearestFilter),
-        loadTexture('nebula', 'img/nebula.png', THREE.LinearFilter),
-        loadTexture('deep_field', 'img/deep_field.png', THREE.LinearFilter),
         loadTexture('spectra', 'img/spectra.png', THREE.LinearFilter),
         loadTexture('moon', 'img/beach-ball.png', THREE.LinearFilter),
         loadTexture('stars', 'img/stars.png', THREE.LinearFilter),
-        loadTexture('accretion_disk', 'img/accretion-disk.png', THREE.LinearFilter)
+        loadTexture('accretion_disk', 'img/accretion-disk.png', THREE.LinearFilter),
+        // Preset-specific accretion disk textures
+        loadTexture('disk_gargantua', 'img/disks/gargantua-disk.png', THREE.LinearFilter),
+        loadTexture('disk_sagra', 'img/disks/sagra-disk.png', THREE.LinearFilter),
+        loadTexture('disk_m87', 'img/disks/m87-disk.png', THREE.LinearFilter),
+        loadTexture('disk_ton618', 'img/disks/ton618-disk.png', THREE.LinearFilter),
+        loadTexture('disk_cygnus', 'img/disks/cygnus-disk.png', THREE.LinearFilter)
     ]).then(results => {
         const loadedTextures = {};
         results.forEach(res => loadedTextures[res.name] = res.tex);

@@ -18,15 +18,14 @@ export class Observer {
             .crossVectors(this.position, orbital_y).normalize();
         var orbital_x = (new THREE.Vector3()).crossVectors(orbital_y, orbital_z);
 
-
-        return (new THREE.Matrix4()).makeBasis(
-            orbital_x,
-            orbital_y,
-            orbital_z
-        ); // .linearPart() is deprecated/removed in modern three.js, makeBasis returns Matrix4, we might need to extract 3x3 or use as is.
-        // Actually, makeBasis returns 'this', which is Matrix4.
-        // The original code used .linearPart() which presumably extracted the 3x3 rotation matrix.
-        // In modern Three.js, we can just use the Matrix4 for rotation if we are careful, or setFromMatrix4 on a Matrix3.
+        // Create a Matrix3 directly from the basis vectors
+        const m = new THREE.Matrix3();
+        m.set(
+            orbital_x.x, orbital_y.x, orbital_z.x,
+            orbital_x.y, orbital_y.y, orbital_z.y,
+            orbital_x.z, orbital_y.z, orbital_z.z
+        );
+        return m;
     }
 
     move(dt, shaderParameters) {

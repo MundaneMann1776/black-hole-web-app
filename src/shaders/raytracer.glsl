@@ -31,6 +31,7 @@ uniform vec3 cam_z;
 uniform vec3 cam_vel;
 
 uniform float planet_distance, planet_radius;
+uniform float accretion_inner_radius, accretion_width;
 
 uniform sampler2D galaxy_texture, star_texture,
     accretion_disk_texture, planet_texture, spectrum_texture;
@@ -39,8 +40,9 @@ uniform sampler2D galaxy_texture, star_texture,
 const int NSTEPS = {{n_steps}};
 const float MAX_REVOLUTIONS = 2.0;
 
-const float ACCRETION_MIN_R = 1.5;
-const float ACCRETION_WIDTH = 5.0;
+// Accretion disk parameters (now from uniforms, with fallback defaults)
+#define ACCRETION_MIN_R accretion_inner_radius
+#define ACCRETION_WIDTH_VAL accretion_width
 const float ACCRETION_BRIGHTNESS = 0.9;
 const float ACCRETION_TEMPERATURE = 3900.0;
 
@@ -366,7 +368,7 @@ void main() {
 
                 if (r > ACCRETION_MIN_R) {
                     vec2 tex_coord = vec2(
-                            (r-ACCRETION_MIN_R)/ACCRETION_WIDTH,
+                            (r-ACCRETION_MIN_R)/ACCRETION_WIDTH_VAL,
                             atan(isec.x, isec.y)/M_PI*0.5+0.5
                     );
 
