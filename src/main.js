@@ -204,22 +204,28 @@ function init(loadedTextures) {
             }
         }
     });
+
+    // ===== FREE CAMERA MOVEMENT SYSTEM =====
     // Track which keys are currently pressed for smooth movement
     const keysPressed = {};
-    const moveSpeed = 0.3;
-    const rotateSpeed = 2;
+    const moveSpeed = 0.15;  // Movement speed in world units
+    let freeMovementMode = true;  // Start in free movement mode
 
-    // Keyboard Controls - WASD for movement, Arrow keys for looking
+    // Disable orbital motion for free camera
+    shader.parameters.observer.motion = false;
+
+    // Keyboard Controls - WASD for FREE movement in 3D space
     window.addEventListener('keydown', (e) => {
         keysPressed[e.key.toLowerCase()] = true;
 
-        // Space bar to toggle orbital motion
+        // Space bar to toggle between free movement and orbital mode
         if (e.key === ' ') {
-            const p = shader.parameters;
-            p.observer.motion = !p.observer.motion;
+            freeMovementMode = !freeMovementMode;
+            shader.parameters.observer.motion = !freeMovementMode;
             updateCamera(updateUniforms);
             scene.updateShader();
             ui.updateUI();
+            console.log(freeMovementMode ? 'Free camera mode' : 'Orbital mode');
             e.preventDefault();
         }
     });
@@ -228,76 +234,123 @@ function init(loadedTextures) {
         keysPressed[e.key.toLowerCase()] = false;
     });
 
-    // Process held keys each frame for smooth movement
+    // Process held keys each frame for smooth FREE movement
     function processKeys() {
-        const p = shader.parameters;
+        if (!freeMovementMode) {
+            // In orbital mode, use the old distance-based movement
+            const p = shader.parameters;
+            let changed = false;
+            if (keysPressed['w']) { p.observer.distance = Math.max(2.0, p.observer.distance - moveSpeed); changed = true; }
+            if (keysPressed['s']) { p.observer.distance = Math.min(50.0, p.observer.distance + moveSpeed); changed = true; }
+            if (keysPressed['a']) { p.observer.orbital_inclination -= 2; changed = true; }
+            if (keysPressed['d']) { p.observer.orbital_inclination += 2; changed = true; }
+            if (changed) { updateCamera(updateUniforms); ui.updateUI(); }
+            return;
+        }
+
+        // FREE CAMERA MODE - move observer directly in 3D space
         let changed = false;
 
-        // W/S - Move forward/backward (change distance)
+        // Get camera's forward, right, and up vectors from orientation
+        const e = observer.orientation.elements;
+        const camX = new THREE.Vector3(e[0], e[1], e[2]);  // Right
+        const camY = new THREE.Vector3(e[3], e[4], e[5]);  // Up  
+        const camZ = new THREE.Vector3(e[6], e[7], e[8]);  // Forward (look direction)
+
+        // W/S - Move forward/backward in the look direction
         if (keysPressed['w']) {
-            p.observer.distance = Math.max(2.0, p.observer.distance - moveSpeed);
+            observer.position.addScaledVector(camZ, -moveSpeed);
             changed = true;
         }
         if (keysPressed['s']) {
-            p.observer.distance = Math.min(50.0, p.observer.distance + moveSpeed);
+            observer.position.addScaledVector(camZ, moveSpeed);
             changed = true;
         }
 
-        // A/D - Rotate around the black hole (change orbital inclination)
+        // A/D - Strafe left/right
         if (keysPressed['a']) {
-            p.observer.orbital_inclination -= rotateSpeed;
+            observer.position.addScaledVector(camX, -moveSpeed);
             changed = true;
         }
         if (keysPressed['d']) {
-            p.observer.orbital_inclination += rotateSpeed;
+            observer.position.addScaledVector(camX, moveSpeed);
             changed = true;
         }
 
-        // Arrow Up/Down - Zoom in/out faster
+        // Q/E - Move up/down
+        if (keysPressed['q']) {
+            observer.position.addScaledVector(camY, -moveSpeed);
+            changed = true;
+        }
+        if (keysPressed['e']) {
+            observer.position.addScaledVector(camY, moveSpeed);
+            changed = true;
+        }
+
+        // Arrow keys for faster movement
         if (keysPressed['arrowup']) {
-            p.observer.distance = Math.max(2.0, p.observer.distance - moveSpeed * 2);
+            observer.position.addScaledVector(camZ, -moveSpeed * 2);
             changed = true;
         }
         if (keysPressed['arrowdown']) {
-            p.observer.distance = Math.min(50.0, p.observer.distance + moveSpeed * 2);
+            observer.position.addScaledVector(camZ, moveSpeed * 2);
             changed = true;
         }
-
-        // Arrow Left/Right - Orbit around black hole
         if (keysPressed['arrowleft']) {
-            p.observer.orbital_inclination -= rotateSpeed;
+            observer.position.addScaledVector(camX, -moveSpeed * 2);
             changed = true;
         }
         if (keysPressed['arrowright']) {
-            p.observer.orbital_inclination += rotateSpeed;
+            observer.position.addScaledVector(camX, moveSpeed * 2);
             changed = true;
         }
 
+        // Prevent getting too close to the black hole (event horizon is at r=1)
+        const minDistance = 1.5;
+        if (observer.position.length() < minDistance) {
+            observer.position.normalize().multiplyScalar(minDistance);
+        }
+
         if (changed) {
-            updateCamera(updateUniforms);
-            ui.updateUI();
+            // Update velocity to point towards black hole (for visual effects)
+            observer.velocity.copy(observer.position).normalize().negate().multiplyScalar(0.1);
+            updateUniforms();
+            shader.needsUpdate = true;
         }
     }
 
-    // Call processKeys every frame
-    const originalAnimate = window.requestAnimationFrame;
+    // Call processKeys every frame for smooth movement
     setInterval(processKeys, 16); // ~60fps key processing
 
-    // Scroll wheel for zoom
+    // Scroll wheel for zoom (move forward/backward)
     window.addEventListener('wheel', (e) => {
-        const p = shader.parameters;
-        const zoomSpeed = 0.5;
-
-        if (e.deltaY > 0) {
-            // Scroll down = zoom out
-            p.observer.distance = Math.min(50.0, p.observer.distance + zoomSpeed);
+        if (!freeMovementMode) {
+            const p = shader.parameters;
+            const zoomSpeed = 0.5;
+            if (e.deltaY > 0) { p.observer.distance = Math.min(50.0, p.observer.distance + zoomSpeed); }
+            else { p.observer.distance = Math.max(2.0, p.observer.distance - zoomSpeed); }
+            updateCamera(updateUniforms);
+            ui.updateUI();
         } else {
-            // Scroll up = zoom in
-            p.observer.distance = Math.max(2.0, p.observer.distance - zoomSpeed);
-        }
+            // In free mode, scroll moves forward/backward
+            const e2 = observer.orientation.elements;
+            const camZ = new THREE.Vector3(e2[6], e2[7], e2[8]);
+            const zoomSpeed = 0.5;
 
-        updateCamera(updateUniforms);
-        ui.updateUI();
+            if (e.deltaY > 0) {
+                observer.position.addScaledVector(camZ, zoomSpeed);
+            } else {
+                observer.position.addScaledVector(camZ, -zoomSpeed);
+            }
+
+            // Prevent getting too close
+            if (observer.position.length() < 1.5) {
+                observer.position.normalize().multiplyScalar(1.5);
+            }
+
+            updateUniforms();
+            shader.needsUpdate = true;
+        }
         e.preventDefault();
     }, { passive: false });
 
